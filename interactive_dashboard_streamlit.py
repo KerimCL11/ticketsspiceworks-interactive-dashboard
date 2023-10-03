@@ -1,7 +1,12 @@
 import json
 import pandas as pd
 import streamlit as st
-import matplotlib.pyplot as plt
+
+# Funciones auxiliares
+def load_data():
+    with open("ticket_export.json", "r", encoding="utf-8") as file:
+        data = json.load(file)
+    return data
 
 def process_data(data):
     ticket_entries = [entry for entry in data["tickets"]]
@@ -101,21 +106,17 @@ def main():
     st.set_page_config(layout="wide")
     st.title("Dashboard de Tickets")
     
-    uploaded_file = st.file_uploader("Sube tu archivo de tickets en formato JSON", type=["json"])
+    data = load_data()
+    ticket_df = process_data(data)
+    
+    choice = st.sidebar.radio("Selecciona una opción", ["Dashboard", "Tendencia de Creación de Tickets"])
+    if choice == "Dashboard":
+        filtered_tickets = apply_filters(ticket_df)
+        st.write(filtered_tickets)
+        display_charts(filtered_tickets)
 
-    if uploaded_file is not None:
-        data = json.load(uploaded_file)
-        ticket_df = process_data(data)
-
-        choice = st.sidebar.radio("Selecciona una opción", ["Dashboard", "Tendencia de Creación de Tickets"])
-        if choice == "Dashboard":
-            filtered_tickets = apply_filters(ticket_df)
-            st.write(filtered_tickets)
-            display_charts(filtered_tickets)
-        elif choice == "Tendencia de Creación de Tickets":
-            display_ticket_trend(ticket_df)
-    else:
-        st.warning("Por favor, sube un archivo JSON para continuar.")
+    elif choice == "Tendencia de Creación de Tickets":
+        display_ticket_trend(ticket_df)
 
 if __name__ == "__main__":
     main()
