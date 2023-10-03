@@ -1,11 +1,9 @@
-import json
 import pandas as pd
 import streamlit as st
 
 # Funciones auxiliares
-def load_data():
-    with open("ticket_export.json", "r", encoding="utf-8") as file:
-        data = json.load(file)
+def load_data(uploaded_file):
+    data = pd.read_json(uploaded_file)
     return data
 
 def process_data(data):
@@ -106,17 +104,23 @@ def main():
     st.set_page_config(layout="wide")
     st.title("Dashboard de Tickets")
     
-    data = load_data()
-    ticket_df = process_data(data)
+    uploaded_file = st.file_uploader("Por favor sube el archivo de tickets en formato JSON", type=["json"])
     
-    choice = st.sidebar.radio("Selecciona una opción", ["Dashboard", "Tendencia de Creación de Tickets"])
-    if choice == "Dashboard":
-        filtered_tickets = apply_filters(ticket_df)
-        st.write(filtered_tickets)
-        display_charts(filtered_tickets)
+    if uploaded_file is not None:
+        data = load_data(uploaded_file)
+        ticket_df = process_data(data)
+        
+        choice = st.sidebar.radio("Selecciona una opción", ["Dashboard", "Tendencia de Creación de Tickets"])
+        if choice == "Dashboard":
+            filtered_tickets = apply_filters(ticket_df)
+            st.write(filtered_tickets)
+            display_charts(filtered_tickets)
+        elif choice == "Tendencia de Creación de Tickets":
+            display_ticket_trend(ticket_df)
+    else:
+        st.write("Esperando el archivo JSON...")
 
-    elif choice == "Tendencia de Creación de Tickets":
-        display_ticket_trend(ticket_df)
-
+if __name__ == "__main__":
+    main()
 if __name__ == "__main__":
     main()
