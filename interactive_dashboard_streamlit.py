@@ -1,10 +1,15 @@
 import pandas as pd
 import streamlit as st
+import json
 
 # Funciones auxiliares
 def load_data(uploaded_file):
-    data = pd.read_json(uploaded_file)
-    return data
+    try:
+        data = pd.read_json(uploaded_file)
+        return data
+    except ValueError as e:
+        st.error(f"Ocurrió un error al cargar el archivo JSON: {e}")
+        return None
 
 def process_data(data):
     ticket_entries = [entry for entry in data["tickets"]]
