@@ -4,12 +4,8 @@ import json
 
 # Funciones auxiliares
 def load_data(uploaded_file):
-    try:
-        data = pd.read_json(uploaded_file)
-        return data
-    except ValueError as e:
-        st.error(f"Ocurrió un error al cargar el archivo JSON: {e}")
-        return None
+    data = json.load(uploaded_file)
+    return data
 
 def process_data(data):
     ticket_entries = [entry for entry in data["tickets"]]
@@ -49,7 +45,6 @@ def apply_filters(ticket_df):
                                             filtered_tickets["description"].str.contains(search_term, case=False)]
     
     return filtered_tickets
-
 def display_charts(filtered_tickets):
     st.header("Distribución de Tickets por Estado")
     st.bar_chart(filtered_tickets["status"].value_counts())
@@ -111,7 +106,7 @@ def main():
     
     uploaded_file = st.file_uploader("Por favor sube el archivo de tickets en formato JSON", type=["json"])
     
-    if uploaded_file is not None:
+    if uploaded_file:
         data = load_data(uploaded_file)
         ticket_df = process_data(data)
         
