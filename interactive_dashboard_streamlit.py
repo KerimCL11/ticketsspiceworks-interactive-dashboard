@@ -2,7 +2,6 @@ import pandas as pd
 import streamlit as st
 import json
 
-# Funciones auxiliares
 def load_data(uploaded_file):
     data = json.load(uploaded_file)
     return data
@@ -45,6 +44,7 @@ def apply_filters(ticket_df):
                                             filtered_tickets["description"].str.contains(search_term, case=False)]
     
     return filtered_tickets
+    
 def display_charts(filtered_tickets):
     st.header("Distribución de Tickets por Estado")
     st.bar_chart(filtered_tickets["status"].value_counts())
@@ -74,10 +74,8 @@ def display_charts(filtered_tickets):
 def display_ticket_trend(ticket_df):
     st.header("Tendencia de Creación de Tickets")
     
-    # Tendencia Diaria
     st.subheader("Tendencia Diaria")
     
-    # Seleccionar fechas para tendencia diaria
     start_date = st.date_input("Fecha de inicio", ticket_df["created_at_date"].min())
     end_date = st.date_input("Fecha de finalización", ticket_df["created_at_date"].max())
     mask = (ticket_df["created_at_date"] >= start_date) & (ticket_df["created_at_date"] <= end_date)
@@ -86,13 +84,11 @@ def display_ticket_trend(ticket_df):
     daily_data = filtered_tickets.groupby(pd.to_datetime(filtered_tickets["created_at_date"])).size()
     st.line_chart(daily_data)
     
-    # Tendencia Mensual
     st.subheader("Tendencia Mensual")
     ticket_df['month_year'] = pd.to_datetime(ticket_df['created_at_date']).dt.to_period('M').astype(str)
     monthly_data = ticket_df.groupby('month_year').size().sort_values()
     st.line_chart(monthly_data)
 
-    # Tabla de tickets creados por mes
     st.subheader("Tickets creados por mes")
     monthly_table = monthly_data.reset_index()
     monthly_table.columns = ['Mes y Año', 'Cantidad']
